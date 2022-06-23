@@ -23,9 +23,9 @@ def create_table_fact(schema):
     id SERIAL,
     product_id int,
     status_id int,
-    date text,
+    month text,
     total_item bigint,
-    total_value bigint);
+    total_sale_price bigint);
   """
 
   return query

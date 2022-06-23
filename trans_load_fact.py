@@ -30,7 +30,7 @@ def loadData(sparkSession,fileName):
         return e
     
 #fact district monthly
-def fact_monthly(rawdf,dimorder):
+def fact_monthly(rawdf,dimstatus):
     
     try:
         print("TRY CREATE FACT TABLE...")
@@ -45,20 +45,20 @@ def fact_monthly(rawdf,dimorder):
         df=df.groupBy(['created_at','month', 'product_id','status']).agg(count('product_id').alias("total_item"),round(sum('sale_price'),2).alias("sum_sale_price"))
         df=df.where(df['status']=="Complete")
         df=df.orderBy(df['product_id'])
-        # w= Window.orderBy('tanggal')
-        # newdf=unpivot.withColumn("id",row_number().over(w))
+        w= Window.orderBy('month')
+        newdf=df.withColumn("id",row_number().over(w))
         # # newdf2.show()
         # # print(newdf2.count())
         # #join
-        # dimcase=dimcase.withColumnRenamed("id","case_id")
+        dimstatus=dimstatus.withColumnRenamed("id","status_id")
         # # dimcase.show()
-        # newdf=newdf.join(dimcase,on="status",how="inner")
-        # newdf=newdf.select(["id","kode_kab","case_id","tanggal","sum(count)"])
+        newdf=newdf.join(dimstatus,newdf['status']==dimstatus['status_name'])
+        newdf=newdf.select(["id","product_id","status_id","month","total_item","sum_sale_price"]).orderBy('month')
         # newdf=newdf.withColumnRenamed("kode_kab","district_id").\
         #               withColumnRenamed("tanggal","month").\
         #               withColumnRenamed("sum(count)","total")
         print("FACT TABLE CREATED!!!")
-        return df
+        return newdf
     except (Exception) as e:
         print("FACT TABLE NOT CREATED!!!")
         print(e)
@@ -89,10 +89,36 @@ def load_dim_status(sparkSession,tb_name):
     except (Exception) as e:
         print(f"{tb_name} NOT LOADED!!!")
         return e
- 
+
+#LOAD TO POSTGRESQL
+def load_to_dwh(df,tb_name):
+    # import json
+    try:
+        print(f"TRY LOAD {tb_name} TO DWH...")
+        with open('/home/hadoop/Documents/finalProject/credentials.json','r') as d:
+            data=json.load(d)
+
+        db=data['postgresql']['database']
+        user=data['postgresql']['username']
+        password=data['postgresql']['password']
+
+        mode = "overwrite"
+        url = f"jdbc:postgresql://localhost:5432/{db}"
+        properties = {"user": user,"password": password,"driver": "org.postgresql.Driver"}
+
+        df.write.jdbc(url=url, table=tb_name, mode=mode, properties=properties)
+        
+        print("LOAD TO DWH SUCESS!!!")
+        return "LOAD TO DWH SUCESS!!!"
+    except (Exception) as e:
+        print("LOAD TO DWH FAILED!!!")
+        return e
+    
 if __name__=="__main__":
     spark=sparkSession()
     data=loadData(spark,'order_items_2022_06_23')
     dim_status=load_dim_status(spark,"dim_status")
     fact=fact_monthly(data,dim_status)
-    fact.show()
+    # fact.show()
+    load00=load_to_dwh(fact,'fact_product_complete_monthly')
+    print(load00)
