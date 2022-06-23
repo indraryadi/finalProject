@@ -68,3 +68,27 @@ ORDER by roi.product_id
 --on roi.status = ds.status_name 
 --where roi.status ='Complete'
 --ORDER by roi.product_id 
+
+
+
+-- +++++++++++++++++++++++++
+select roi.product_id ,
+	   substring(roi.created_at,1,7) as month ,
+	   ds.id as status_id ,
+	   count(roi.product_id) as tot_item,
+	   sum(roi.sale_price) as tot_value
+from rawdataorder roi
+join dim_status ds 
+on roi.status = ds.status_name 
+where roi.status ='Complete'
+GROUP by (month,roi.product_id,status_id)
+ORDER by roi.product_id,month
+--
+
+	select * from rawdataorder r where product_id =4
+--select roi.product_id ,ds.id as status_id, roi.created_at  
+--from rawdataorder roi
+--join dim_status ds 
+--on roi.status = ds.status_name 
+--where roi.status ='Complete'
+--ORDER by roi.product_id 

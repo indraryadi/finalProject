@@ -34,12 +34,17 @@ def fact_monthly(rawdf,dimorder):
     
     try:
         print("TRY CREATE FACT TABLE...")
-        df = rawdf.select(['created_at', 'product_id','status'])
+        # df = rawdf.select(['created_at', 'product_id','status','sale_price'])
+        df = rawdf
         df=df.withColumn('month',substring('created_at',1,7))
         df=df.withColumn('created_at',df['month'])
-        df=df.groupBy(['created_at','month', 'product_id','status']).sum('count')
-        # df.drop("month")
-        # unpivot.where(unpivot["tanggal"]=="2020-08-05").show(truncate=False)
+        # df=df.groupBy(['created_at','month', 'product_id','status']).count()
+        # df=df.withColumnRenamed("count","total_item")
+        # df=df.groupBy(['created_at','month', 'product_id','status']).agg(sum(df['sale_price']))
+        # df=df.withColumnRenamed("sum(sale_price)","total_sale_price")
+        df=df.groupBy(['created_at','month', 'product_id','status']).agg(count('product_id').alias("total_item"),round(sum('sale_price'),2).alias("sum_sale_price"))
+        df=df.where(df['status']=="Complete")
+        df=df.orderBy(df['product_id'])
         # w= Window.orderBy('tanggal')
         # newdf=unpivot.withColumn("id",row_number().over(w))
         # # newdf2.show()
