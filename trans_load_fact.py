@@ -29,7 +29,7 @@ def loadData(sparkSession,fileName):
         print("DATA NOT LOADED!!!")
         return e
     
-#fact district monthly
+#fact monthly
 def fact_monthly(rawdf,dimstatus):
     
     try:

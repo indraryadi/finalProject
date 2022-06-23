@@ -24,7 +24,7 @@ with DAG(
     
     raw_to_hdfs=BashOperator(
         task_id="raw_to_hdfs",
-        bash_command="~/spark-3.0.3-bin-hadoop3.2/bin/spark-submit --master yarn --queue dev --driver-class-path /home/hadoop/postgresql-42.2.6.jar --jars /home/hadoop/postgresql-42.2.6.jar ~/Documents/finalProject/ingest.py",
+        bash_command="~/spark-3.0.3-bin-hadoop3.2/bin/spark-submit --master yarn --queue dev --driver-class-path /home/hadoop/postgresql-42.2.6.jar --jars /home/hadoop/postgresql-42.2.6.jar /home/hadoop/Documents/finalProject/ingest.py",
         dag=dag
     )
     
@@ -43,3 +43,4 @@ with DAG(
     )
 start>>raw_to_hdfs>>dim_to_dwh>>fact_to_dwh>>stop
 # start>>stop
+# dim_to_dwh>>fact_to_dwh>>

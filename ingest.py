@@ -8,38 +8,15 @@ import re
 
 def sparkSession():
     try:
-        spark=SparkSession.builder.appName("Submitted2").config("spark.jars", "file:///home/hadoop/postgresql-42.2.6.jar").getOrCreate()
+        spark=SparkSession.builder.appName("Submitted2").\
+                                   config("spark.jars", "file:///home/hadoop/postgresql-42.2.6.jar").\
+                                   getOrCreate()
         # print(spark)
         print("SESSION CREATED!!!")
         return spark
     except (Exception) as e:
         print("SESSION NOT CREATED!!!")
         return e
-# load from local
-# def ingest_data(sparkSession):
-#     try:
-#         print("READ DATA FROM SOURCE...")
-#         df2=sparkSession.read.option("header",True).option("delimiter",",").csv("file:///home/hadoop/Documents/finalProject/dataset/order_items.csv")
-#         return df2
-#     except (Exception) as e:
-#         print("READ DATA FAILED!!!")
-#         return e
-#     #save to hdfs
-# def save_to_hdfs(data):
-#     # df.write.mode("overwrite").csv("hdfs:///covid19/raw_data_test.csv")
-#     try:       
-#         print("LOAD TO HDFS...")
-#         date = datetime.now().strftime("%Y_%m_%d")
-#         # print(f"filename_{date}")
-#         dates=f"{date}"
-#         path=f"hdfs://localhost:9000/finalProject/orderItems_{dates}"
-#         data.write.mode("overwrite").option("header",True).csv(path)
-#         print("LOAD DATA SUCCESS!!!")
-#     except (Exception) as e:
-#         print("LOAD DATA FAILED!!!")
-#         return e
-# ===============================
-
 
 # load from local
 def ingest_data(sparkSession,filePath):
@@ -65,24 +42,24 @@ def save_to_hdfs(data,fileName):
         print("LOAD DATA FAILED!!!")
         return e
 
-def load_mul_to_hdfs(sparkSession):
-    try:
-        print("TRY LOOP DIR...")
-        # assign directory
-        cwd=os.getcwd()
-        directory = "file:///home/hadoop/Documents/finalProject/dataset/"
-        # directory='dataset'
-        for name in os.scandir(directory):
-            if name.is_file():
-                # path=name.path.split('/')
-                filePath=re.split('.csv|/',name.path)
-                fileName=filePath[1]
-                data=ingest_data(sparkSession,name.path)
-                save_to_hdfs(data,fileName)
-    except (Exception) as e:
-        print("TRY LOOP FAILED!!!")
-        print(e)
-        return e        
+# def load_mul_to_hdfs(sparkSession):
+#     try:
+#         print("TRY LOOP DIR...")
+#         # assign directory
+#         cwd=os.getcwd()
+#         directory = "file:///home/hadoop/Documents/finalProject/dataset/"
+#         # directory='dataset'
+#         for name in os.scandir(directory):
+#             if name.is_file():
+#                 # path=name.path.split('/')
+#                 filePath=re.split('.csv|/',name.path)
+#                 fileName=filePath[1]
+#                 data=ingest_data(sparkSession,name.path)
+#                 save_to_hdfs(data,fileName)
+#     except (Exception) as e:
+#         print("TRY LOOP FAILED!!!")
+#         print(e)
+#         return e        
 
 
 
@@ -94,10 +71,36 @@ if __name__=="__main__":
     # print(os.getcwd())
     
     data=ingest_data(spark,'dataset/products.csv')
-    # print(type(data))
+    data2=ingest_data(spark,'dataset/order_items.csv')
     save_to_hdfs(data,'products')
-    data=ingest_data(spark,'dataset/order_items.csv')
-    # print(type(data))
-    save_to_hdfs(data,'order_items')
+    save_to_hdfs(data2,'order_items')
     
    
+   
+   
+   
+   
+   # load from local
+# def ingest_data(sparkSession):
+#     try:
+#         print("READ DATA FROM SOURCE...")
+#         df2=sparkSession.read.option("header",True).option("delimiter",",").csv("file:///home/hadoop/Documents/finalProject/dataset/order_items.csv")
+#         return df2
+#     except (Exception) as e:
+#         print("READ DATA FAILED!!!")
+#         return e
+#     #save to hdfs
+# def save_to_hdfs(data):
+#     # df.write.mode("overwrite").csv("hdfs:///covid19/raw_data_test.csv")
+#     try:       
+#         print("LOAD TO HDFS...")
+#         date = datetime.now().strftime("%Y_%m_%d")
+#         # print(f"filename_{date}")
+#         dates=f"{date}"
+#         path=f"hdfs://localhost:9000/finalProject/orderItems_{dates}"
+#         data.write.mode("overwrite").option("header",True).csv(path)
+#         print("LOAD DATA SUCCESS!!!")
+#     except (Exception) as e:
+#         print("LOAD DATA FAILED!!!")
+#         return e
+# ===============================
