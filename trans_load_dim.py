@@ -105,19 +105,19 @@ def load_to_dwh(df,tb_name):
 if __name__=="__main__":
     spark=sparkSession()
     data=loadData(spark,'products_2022_06_23')
-    dim_products=dim_product(data)
-    # print(dim_products.count())
-    # dim_products.show()
-    
     dataOrder=loadData(spark,'order_items_2022_06_23')
+    
+   
+    dim_products=dim_product(data)
+ 
+    
+    
     dim_stat=dim_status(dataOrder)
-    # print(dim_stat.count())
-    # dim_stat.show()
+
     
     
     dim_dates=dim_date(dataOrder)
-    # print(dim_dates.count())
-    # dim_dates.show()
+
     # 180172
     
     load00=load_to_dwh(dim_stat,'dim_status')

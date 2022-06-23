@@ -26,3 +26,45 @@ on raw_orders.user_id = raw_order_items.user_id
 join raw_prodicts
 on raw_order_items.product_id = raw_prodicts.id
 WHERE raw_prodicts.name = "Wrangler Men's Premium Performance Cowboy Cut Jean"
+
+
+select roi.product_id ,roi.created_at ,count(roi.product_id) as tot_item 
+from rawdataorder roi
+where roi.status ='Complete'
+GROUP by (roi.created_at,roi.product_id)
+ORDER by roi.product_id 
+--
+--select roi.product_id ,ds.id as status_id, roi.created_at  
+--from rawdataorder roi
+--join dim_status ds 
+--on roi.status = ds.status_name 
+--where roi.status ='Complete'
+--ORDER by roi.product_id 
+
+select roi.product_id ,substring(roi.created_at,1,7) as month ,roi.status  ,count(roi.product_id) as tot_item 
+from rawdataorder roi
+where roi.status ='Complete'
+GROUP by (month,roi.product_id,roi.status)
+ORDER by roi.product_id 
+--
+--select roi.product_id ,ds.id as status_id, roi.created_at  
+--from rawdataorder roi
+--join dim_status ds 
+--on roi.status = ds.status_name 
+--where roi.status ='Complete'
+--ORDER by roi.product_id 
+
+select roi.product_id ,substring(roi.created_at,1,7) as month ,ds.id as status_id ,count(roi.product_id) as tot_item 
+from rawdataorder roi
+join dim_status ds 
+on roi.status = ds.status_name 
+where roi.status ='Complete'
+GROUP by (month,roi.product_id,status_id)
+ORDER by roi.product_id 
+--
+--select roi.product_id ,ds.id as status_id, roi.created_at  
+--from rawdataorder roi
+--join dim_status ds 
+--on roi.status = ds.status_name 
+--where roi.status ='Complete'
+--ORDER by roi.product_id 
