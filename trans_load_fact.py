@@ -38,25 +38,17 @@ def fact_monthly(rawdf,dimstatus):
         df = rawdf
         df=df.withColumn('month',substring('created_at',1,7))
         df=df.withColumn('created_at',df['month'])
-        # df=df.groupBy(['created_at','month', 'product_id','status']).count()
-        # df=df.withColumnRenamed("count","total_item")
-        # df=df.groupBy(['created_at','month', 'product_id','status']).agg(sum(df['sale_price']))
-        # df=df.withColumnRenamed("sum(sale_price)","total_sale_price")
         df=df.groupBy(['created_at','month', 'product_id','status']).agg(count('product_id').alias("total_item"),round(sum('sale_price'),2).alias("sum_sale_price"))
         df=df.where(df['status']=="Complete")
         df=df.orderBy(df['product_id'])
         w= Window.orderBy('month')
         newdf=df.withColumn("id",row_number().over(w))
-        # # newdf2.show()
-        # # print(newdf2.count())
+
         # #join
         dimstatus=dimstatus.withColumnRenamed("id","status_id")
-        # # dimcase.show()
         newdf=newdf.join(dimstatus,newdf['status']==dimstatus['status_name'])
         newdf=newdf.select(["id","product_id","status_id","month","total_item","sum_sale_price"]).orderBy('month')
-        # newdf=newdf.withColumnRenamed("kode_kab","district_id").\
-        #               withColumnRenamed("tanggal","month").\
-        #               withColumnRenamed("sum(count)","total")
+      
         print("FACT TABLE CREATED!!!")
         return newdf
     except (Exception) as e:
